@@ -1,7 +1,7 @@
 import pandas as pd
 from seq_mod import *
 import numpy as np
-from Bio import Align
+import ahocorasick
 
 # read the fasta file first
 fasta_name = "mouse.fasta"
@@ -71,10 +71,27 @@ for i in range(0,len(zero_list)):
 
 # There are sequence with gene name and ones without. For the ones with gene names, we subset them.
 no_brac_gene = mutated_no_brac[mutated_no_brac["ID"].isin(gene_list)]
-no_brac_no_gene = mutated_no_brac[~mutated_no_brac["ID"].isin(gene_list)]
+no_brac_no_gene = mutated_no_brac[~mutated_no_brac["ID"].isin(gene_list)].drop_duplicates(subset = "Neopeptide sequence")
 
 # Initiate a dictionary for searching refine
 no_brac_gene_dict = {}
 for index, mutation in no_brac_gene.iterrows():
     incides = [i for i in range(len(gene_list)) if mutation["ID"] == gene_list[i]]
     no_brac_gene_dict[mutation["ID"]] = incides
+
+# Create automaton
+automaton = ahocorasick.Automaton()
+# build the Trie
+for idx, key in no_brac_no_gene.iterrows():
+    automaton.add_word(key["Neopeptide sequence"][0:6], (idx, key["Neopeptide sequence"][0:6]))
+# Convert the trie to an aho-corasick automaton
+automaton.make_automaton()
+
+for end_index, (insert_order, original_value) in automaton.iter(aho_seq):
+    start_index = end_index - len(original_value) + 1
+    print((start_index, end_index, (insert_order, original_value)))
+    assert aho_seq[start_index:start_index + len(original_value)] == original_value
+
+
+# This is meant to search and return the most significant protein from the protein list.
+#def fine_search(mutation: str, index_list: list):
