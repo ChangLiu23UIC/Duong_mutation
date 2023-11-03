@@ -45,8 +45,6 @@ for index, mutation in mutated_bracket.iterrows():
                 fasta_protein_write = (
                     (">" + name.split("|")[0] + "|PPP{}|" + name.split("|")[2] + "\n" + final_sequence)
                     .format(str(str(index).zfill(3)) + "_" + str(n)))
-                print(fasta_protein_write)
-
 
 
 # Long string for aho-corasick
@@ -91,6 +89,7 @@ for end_index, (insert_order, original_value) in automaton.iter(aho_seq):
     else:
         seq_dict[original_value] = []
         seq_dict[original_value].append(zero_list[end_index])
+
 
 
 
