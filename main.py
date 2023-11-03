@@ -73,8 +73,9 @@ for i in range(0,len(zero_list)):
 no_brac_gene = mutated_no_brac[mutated_no_brac["ID"].isin(gene_list)]
 no_brac_no_gene = mutated_no_brac[~mutated_no_brac["ID"].isin(gene_list)].drop_duplicates(subset = "Neopeptide sequence")
 
-# Initiate a dictionary for searching refine
+# Initiate a dictionary for searching refine gene: identified proteins
 no_brac_gene_dict = {}
+# We want to see how many times have the gene name appeared in the protein
 for index, mutation in no_brac_gene.iterrows():
     incides = [i for i in range(len(gene_list)) if mutation["ID"] == gene_list[i]]
     no_brac_gene_dict[mutation["ID"]] = incides
@@ -86,12 +87,20 @@ for idx, key in no_brac_no_gene.iterrows():
     automaton.add_word(key["Neopeptide sequence"][0:6], (idx, key["Neopeptide sequence"][0:6]))
 # Convert the trie to an aho-corasick automaton
 automaton.make_automaton()
-
+# Initiate a dictionary for sequence: identified proteins
+seq_dict = {}
+# Do the search of the aho-corasick
 for end_index, (insert_order, original_value) in automaton.iter(aho_seq):
     start_index = end_index - len(original_value) + 1
-    print((start_index, end_index, (insert_order, original_value)))
     assert aho_seq[start_index:start_index + len(original_value)] == original_value
+    if original_value in seq_dict:
+        seq_dict[original_value].append(zero_list[end_index])
+    else:
+        seq_dict[original_value] = []
+        seq_dict[original_value].append(zero_list[end_index])
+
+
 
 
 # This is meant to search and return the most significant protein from the protein list.
-#def fine_search(mutation: str, index_list: list):
+

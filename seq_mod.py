@@ -13,3 +13,4 @@ def search_seq(unmodified: str) -> list:
         modified = unmodified[0:position.start()] + unmodified[position.start() + 3] + unmodified[position.end():]
         return [original, modified]
 
+
