@@ -34,26 +34,19 @@ for index, mutation in mutated_bracket.iterrows():
         original = search_seq(mutation["Neopeptide sequence"])[0]
         modified = search_seq(mutation["Neopeptide sequence"])[1]
         # Locate the sequence with gene name, some don't have gene name matched
-        try:
-            seq_index = gene_list.index(mutation["ID"])
-            seq_string = protein_list[seq_index]
-            # replace the original string with the modified string
-            final_sequence = seq_string.replace(original, modified)
-            name = split_list[seq_index].split("\n")[0]
-            # Get the result in fasta format
-            fasta_protein_write = (
-                (">" + name.split("|")[0] + "|PPP{}|" + name.split("|")[2] + "\n" + final_sequence)
-                .format(str(str(index).zfill(3)) + "_" + str(1)))
-        except ValueError:
-            n = 0
-            for protein in protein_list:
-                if protein.find(original) != -1:
-                    n += 1
-                    final_sequence = protein.replace(original, modified)
-                    name = split_list[protein_list.index(protein)].split("\n")[0]
-                    fasta_protein_write = (
-                        (">" + name.split("|")[0] + "|PPP{}|" + name.split("|")[2] + "\n" + final_sequence)
-                        .format(str(str(index).zfill(3)) + "_" + str(n)))
+        n = 0
+        for protein in protein_list:
+            if protein.find(original) != -1:
+                n += 1
+                # replace the original string with the modified string
+                final_sequence = protein.replace(original, modified)
+                name = split_list[protein_list.index(protein)].split("\n")[0]
+                # Get the result in fasta format
+                fasta_protein_write = (
+                    (">" + name.split("|")[0] + "|PPP{}|" + name.split("|")[2] + "\n" + final_sequence)
+                    .format(str(str(index).zfill(3)) + "_" + str(n)))
+                print(fasta_protein_write)
+
 
 
 # Long string for aho-corasick
@@ -78,7 +71,7 @@ no_brac_gene_dict = {}
 # We want to see how many times have the gene name appeared in the protein
 for index, mutation in no_brac_gene.iterrows():
     incides = [i for i in range(len(gene_list)) if mutation["ID"] == gene_list[i]]
-    no_brac_gene_dict[mutation["ID"]] = incides
+    no_brac_gene_dict[mutation["Neopeptide sequence"]] = incides
 
 # Create automaton
 automaton = ahocorasick.Automaton()
