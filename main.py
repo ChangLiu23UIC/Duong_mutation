@@ -1,5 +1,6 @@
 import pandas as pd
 from seq_mod import *
+import numpy as np
 from Bio import Align
 
 # read the fasta file first
@@ -21,6 +22,17 @@ for index, row in mutated.iterrows():
     if row["Gene origin"] != "No_data":
         row["ID"] = row["Gene origin"]
 mutated = mutated[mutated["Cell line"] != "DAMP"].iloc[:, 1:3]
+
+# Long string for aho-corasick
+aho_seq = "|".join(protein_list)
+zero_list = np.zeros(len(aho_seq), dtype= int).tolist()
+ind = int(0)
+for i in range(0,len(zero_list)):
+    if aho_seq[i] != "|":
+        zero_list[i] += ind
+    else:
+        ind += 1
+
 
 for index, mutation in mutated.iterrows():
         if "[" in mutation["Neopeptide sequence"]:
@@ -47,4 +59,7 @@ for index, mutation in mutated.iterrows():
                         fasta_protein_write = (
                             (">" + name.split("|")[0] + "|PPP{}|" + name.split("|")[2] + "\n" + final_sequence)
                             .format(str(str(index).zfill(3)) + "_" + str(n)))
+
         # The segment do not have the bracket, but have gene origin name
+        else:
+            continue
