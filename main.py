@@ -2,6 +2,7 @@ import pandas as pd
 from seq_mod import *
 import numpy as np
 import ahocorasick
+from refined_search import *
 
 # read the fasta file first
 fasta_name = "mouse.fasta"
@@ -62,7 +63,7 @@ for i in range(0,len(zero_list)):
 
 # There are sequence with gene name and ones without. For the ones with gene names, we subset them.
 no_brac_gene = mutated_no_brac[mutated_no_brac["ID"].isin(gene_list)]
-no_brac_no_gene = mutated_no_brac[~mutated_no_brac["ID"].isin(gene_list)].drop_duplicates(subset = "Neopeptide sequence")
+no_brac_no_gene = mutated_no_brac[~mutated_no_brac["ID"].isin(gene_list)].drop_duplicates(subset = "Neopeptide sequence").reset_index()
 
 # Initiate a dictionary for searching refine gene: identified proteins
 no_brac_gene_dict = {}
@@ -82,17 +83,17 @@ automaton.make_automaton()
 seq_dict = {}
 # Do the search of the aho-corasick
 for end_index, (insert_order, original_value) in automaton.iter(aho_seq):
+
     start_index = end_index - len(original_value) + 1
     assert aho_seq[start_index:start_index + len(original_value)] == original_value
-    if original_value in seq_dict:
-        seq_dict[original_value].append(zero_list[end_index])
+    if no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"] in seq_dict:
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]].append(zero_list[end_index])
     else:
-        seq_dict[original_value] = []
-        seq_dict[original_value].append(zero_list[end_index])
-
-
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]] = []
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]].append(zero_list[end_index])
 
 
 
 # This is meant to search and return the most significant protein from the protein list.
-
+seq_dict = fine_search(seq_dict, protein_list)
+no_brac_gene_dict = fine_search(no_brac_gene_dict, protein_list)

@@ -14,3 +14,15 @@ def search_seq(unmodified: str) -> list:
         return [original, modified]
 
 
+# Do the search of the aho-corasick
+"""for end_index, (insert_order, original_value) in automaton.iter(aho_seq):
+
+    start_index = end_index - len(original_value) + 1
+    assert aho_seq[start_index:start_index + len(original_value)] == original_value
+    if original_value in seq_dict:
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]].append(zero_list[end_index])
+    else:
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]] = []
+        seq_dict[no_brac_no_gene.iloc(0)[insert_order]["Neopeptide sequence"]].append(zero_list[end_index])
+        """
+
